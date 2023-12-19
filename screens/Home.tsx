@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   ScrollView,
   RefreshControl,
-  StatusBar
 } from 'react-native';
 import { ProgressBar } from '@react-native-community/progress-bar-android';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,7 +18,6 @@ import 'react-native-url-polyfill/auto';
 import { db, storage } from '../firebase-config';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useRoute } from '@react-navigation/native';
-import Api from './Api';
 import ViewShot from 'react-native-view-shot';
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -125,121 +123,42 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     navigation.navigate('Camera');
   };
 
-
-  // global.Buffer = require('buffer').Buffer;
-
-  // const query = async (text: string) => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await axios.post(
-  //       "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5",
-  //       {
-  //         inputs: text,
-  //         // negative_prompt: negativeText,
-  //         // enhance_prompt: "yes",
-  //         // width: null,
-  //         // height: null,
-  //         num_inference_steps: 48,
-  //         guidance_scale: 6.0,
-  //         // seed: null,
-  //         upscale: "yes",
-  //         // self_attention: "yes",
-  //         Sampler: "Eular",
-  //         // safety_checker: "yes",
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${Api}`,
-  //           Accept: 'application/json',
-  //           'Content-Type': 'application/json',
-  //         },
-  //         responseType: 'arraybuffer',
-  //       }
-  //     );
-
-  //     const mimeType = response.headers['content-type'];
-  //     const result = response.data;
-
-  //     const base64data = Buffer.from(result, 'binary').toString('base64');
-  //     const img = `data:${mimeType};base64,${base64data}`;
-
-  //     setLoading(false);
-  //     setImageData(img);
-
-  //     // Log the URL to the console
-  //     console.log('Generated Image URL:', img);
-
-  //   } catch (error) {
-  //     console.error('Error making the request:', error);
-  //     setLoading(false);
-  //   }
-  // };
-
-
   const GenerateImageRequest = async (prompt: string, nprompt: string,steps:string) => {
 
     const data = {
       inputs: prompt,
       negative_prompt:nprompt,
-      num_inference_steps: steps,
-      seed: 1627275432,
-      guidance_scale: 6.5,
-      Sampler: "Eular",
-
-
+      num_inference_steps: steps
     };
 
     try {
       setLoading(true);
-
-      const response = await fetch(
-        "https://api-inference.huggingface.co/models/digiplay/Photon_v1",
-
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${Api}`,
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await fetch('http://192.168.18.29:8080/generate_image', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
 
       const mimeType = response.headers.get("content-type");
 
-      const blob = await response.blob();
+      const Data = await response.json();
+      const imageData = Data.image; // This will contain the base64 encoded image string
+      console.log('result',imageData);
+      const img = `data:${mimeType};base64,${imageData}`;
+      console.log('Image Data', img);
 
-      console.log('response Blob', blob);
-
-      // Read blob as data URL
-      const reader = new FileReader();
-
-      // Define a function to handle FileReader load event
-      reader.onload = () => {
-        const result = reader.result;
-
-        // console.log('read result',result);
-
-        // Check if the result is a string
-        if (typeof result === 'string') {
-          // Get the base64 data
-          const base64Data = result.split(',')[1]; // Extract base64 part
-
-          const img = `data:${mimeType};base64,${base64Data}`;
-
-          console.log('Image Data', img);
-
-          // Set the result state with the data URL
+//    Set the result state
           
-          setLoading(false);
-          setImageData(img);
+       setLoading(false);
+       setImageData(img);
 
-        }
-      };
-
-      // Read the Blob as data URL
-      reader.readAsDataURL(blob);
 
     } catch (error) {
         console.error("Error making the request:", error);
