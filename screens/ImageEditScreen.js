@@ -172,7 +172,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '50%',
-    borderRadius: 20,
   },
   backButton: {
     position: 'absolute',

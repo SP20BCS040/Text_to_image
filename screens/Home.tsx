@@ -60,7 +60,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     "Barak Obama with Beard",
     "Imran Khan in space",
     "A beautiful horse floating above water",
-    "A german person eating Pakistani food"
     // Add more descriptions as needed
   ];
 
@@ -133,7 +132,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     try {
       setLoading(true);
-      const response = await fetch('http://192.168.18.29:8080/generate_image', {
+      const response = await fetch('http://192.168.137.145:8080/generate_image', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -143,7 +142,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       });
   
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        console.log('Network response was not ok');
       }
 
       const mimeType = response.headers.get("content-type");
@@ -393,7 +392,7 @@ const uploadImageToFirebase = async (imageUri: RequestInfo) => {
        <View style={styles.imageContainer}>
          <ViewShot ref={viewShotRef} >
            <Image
-             style={styles.generatedImage}
+           style={imageData ? styles.generatedImage : styles.placeholderImage}
              source={{ uri: imageData || imagePlaceholder }}
            />
          </ViewShot>
@@ -529,6 +528,15 @@ generatedImage: {
  
  
 },
+placeholderImage: {
+  width: 300,
+  height: 300,
+  resizeMode: 'contain',
+  borderRadius: 30,
+  marginTop: 30,
+  marginLeft:-100
+  
+ },
 sessionContainer: {
  backgroundColor: 'white',
  borderRadius: 10,

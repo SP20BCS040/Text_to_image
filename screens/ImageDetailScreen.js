@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '50%',
-    borderRadius: 10, // Add some border radius for a modern look
+    // Add some border radius for a modern look
   },
   buttonsContainer: {
     flexDirection: 'row',
